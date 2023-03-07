@@ -16,6 +16,19 @@ async function connect() {
         db = await mongoose.connect(uri);
         console.log("Connected to MongoDB");
         myDatabase = db.connection.db;
+
+            deleteAllChannels();
+    deleteAllPrograms();
+
+    getAllData()
+        .then((data) => {
+            const result = createChannelsAndPrograms(JSON.parse(data));
+            addChannelsToDatabase(result.channels);
+            insertPrograms(result.programs);
+        })
+        .catch((error) => {
+            console.error(error);
+        });
     } catch (error) {
         console.error(error);
     }
@@ -129,8 +142,8 @@ function createChannelsAndPrograms(data) {
         for (const programData of channelData.programs) {
             const program = {
                 name: programData.name,
-                start: moment(programData.start.substring(0, formatDate.length), formatDate).unix(),
-                end: moment(programData.end.substring(0, formatDate.length), formatDate).unix(),
+                start: programData.start,
+                end: programData.end,
                 channel: channelData.id,
                 icon: programData.icon,
                 rating: programData.rating,
