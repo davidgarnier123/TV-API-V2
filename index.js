@@ -132,7 +132,7 @@ function createChannelsAndPrograms(data) {
 
     for (const channelData of data.data) {
         const channel = {
-            name: channelData.name,
+            name: channelData.id,
             icon: channelData.icon,
         };
         channels.push(channel);
