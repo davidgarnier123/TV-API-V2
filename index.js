@@ -16,19 +16,6 @@ async function connect() {
         db = await mongoose.connect(uri);
         console.log("Connected to MongoDB");
         myDatabase = db.connection.db;
-
-            deleteAllChannels();
-    deleteAllPrograms();
-
-    getAllData()
-        .then((data) => {
-            const result = createChannelsAndPrograms(JSON.parse(data));
-            addChannelsToDatabase(result.channels);
-            insertPrograms(result.programs);
-        })
-        .catch((error) => {
-            console.error(error);
-        });
     } catch (error) {
         console.error(error);
     }
