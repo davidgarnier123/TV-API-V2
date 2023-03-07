@@ -5,10 +5,12 @@ const mongoose = require("mongoose");
 const app = express();
 const https = require('https');
 
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.o2syul8.mongodb.net/tv?retryWrites=true&w=majority`;
 let db;
 let myDatabase;
-const formatDate = "YYYYMMDDHHmmss";
+
 
 async function connect() {
     try {
@@ -28,6 +30,16 @@ app.listen(8000, () => {
 
 });
 
+app.all('*', function (req, res, next) {
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    if ('OPTIONS' == req.method) {
+      res.sendStatus(200);
+    } else {
+      next();
+    }
+  });
 
 app.get('/channels', async (req, res) => {
     try {
