@@ -4,11 +4,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const https = require('https');
-
+const moment = require('moment');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.o2syul8.mongodb.net/tv?retryWrites=true&w=majority`;
 let db;
 let myDatabase;
+const formatDate = "YYYYMMDDHHmmss";
 
 async function connect() {
     try {
@@ -128,8 +129,8 @@ function createChannelsAndPrograms(data) {
         for (const programData of channelData.programs) {
             const program = {
                 name: programData.name,
-                start: new Date(programData.start * 1000),
-                end: new Date(programData.end * 1000),
+                start: moment(programData.start.substring(0, formatDate.length), formatDate).unix(),
+                end: moment(programData.end.substring(0, formatDate.length), formatDate).unix(),
                 channel: channelData.id,
                 icon: programData.icon,
                 rating: programData.rating,
