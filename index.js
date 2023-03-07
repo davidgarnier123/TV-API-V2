@@ -4,7 +4,6 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const https = require('https');
-const moment = require('moment');
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.o2syul8.mongodb.net/tv?retryWrites=true&w=majority`;
 let db;
