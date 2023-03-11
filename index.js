@@ -22,13 +22,12 @@ async function connect() {
     }
 }
 
-connect();
+connect().then( () => {
+    app.listen(8000, () => {
+        console.log("Server started on port 8000");
+    });
+})
 
-
-app.listen(8000, () => {
-    console.log("Server started on port 8000");
-
-});
 
 app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Origin', '*');
