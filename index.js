@@ -10,6 +10,8 @@ const https = require('https');
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.o2syul8.mongodb.net/tv?retryWrites=true&w=majority`;
 let db;
 let myDatabase;
+let channels = [];
+let programs = [];
 
 
 async function connect() {
@@ -17,12 +19,21 @@ async function connect() {
         db = await mongoose.connect(uri);
         console.log("Connected to MongoDB");
         myDatabase = db.connection.db;
+
+        // Récupérer les channels depuis la base de données ici
+        const channelsCollection = myDatabase.collection('channels');
+        channels = await channelsCollection.find({}).toArray();
+        // Récupérer les channels depuis la base de données ici
+        const programsCollection = myDatabase.collection('programs');
+        programs = await programsCollection.find({}).toArray();
+
+
     } catch (error) {
         console.error(error);
     }
 }
 
-connect().then( () => {
+connect().then(() => {
     app.listen(8000, () => {
         console.log("Server started on port 8000");
     });
@@ -34,18 +45,14 @@ app.all('*', function (req, res, next) {
     res.header('Access-Control-Allow-Methods', 'GET');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     if ('OPTIONS' == req.method) {
-      res.sendStatus(200);
+        res.sendStatus(200);
     } else {
-      next();
+        next();
     }
-  });
+});
 
 app.get('/channels', async (req, res) => {
     try {
-        // Récupérer les channels depuis la base de données ici
-        const channelsCollection = myDatabase.collection('channels');
-
-        const channels = await channelsCollection.find({}).toArray();
         res.json(channels);
     } catch (error) {
         console.error(error);
@@ -55,10 +62,6 @@ app.get('/channels', async (req, res) => {
 
 app.get('/programs', async (req, res) => {
     try {
-        // Récupérer les channels depuis la base de données ici
-        const programsCollection = myDatabase.collection('programs');
-
-        const programs = await programsCollection.find({}).toArray();
         res.json(programs);
     } catch (error) {
         console.error(error);
@@ -158,15 +161,19 @@ function createChannelsAndPrograms(data) {
 }
 
 
-async function addChannelsToDatabase(channels) {
+async function addChannelsToDatabase(channelsData) {
     const channelsCollection = myDatabase.collection('channels');
-    const result = await channelsCollection.insertMany(channels);
+    const result = await channelsCollection.insertMany(channelsData);
+    channels = [];
+    channels = channelsData;
     console.log(`Added ${result.insertedCount} channels to database`);
 }
 
 
-async function insertPrograms(programs) {
+async function insertPrograms(programsData) {
     const channelsCollection = myDatabase.collection('programs');
-    const result = await channelsCollection.insertMany(programs);
+    const result = await channelsCollection.insertMany(programsData);
+    programs = [];
+    programs = programsData;
     console.log(`Added ${result.insertedCount} programs to database`);
 }
