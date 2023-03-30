@@ -12,7 +12,7 @@ let db;
 let myDatabase;
 let channels = [];
 let programs = [];
-
+let updateDate = new Date();
 
 async function connect() {
     try {
@@ -20,14 +20,13 @@ async function connect() {
         console.log("Connected to MongoDB");
         myDatabase = db.connection.db;
 
-        // Récupérer les channels depuis la base de données ici
-        const channelsCollection = myDatabase.collection('channels');
-        channels = await channelsCollection.find({}).toArray();
-        // Récupérer les channels depuis la base de données ici
-        const programsCollection = myDatabase.collection('programs');
-        programs = await programsCollection.find({}).toArray();
-
-
+        // // Récupérer les channels depuis la base de données ici
+        // const channelsCollection = myDatabase.collection('channels');
+        // channels = await channelsCollection.find({}).toArray();
+        // // Récupérer les channels depuis la base de données ici
+        // const programsCollection = myDatabase.collection('programs');
+        // programs = await programsCollection.find({}).toArray();
+        updateStorage();
     } catch (error) {
         console.error(error);
     }
@@ -69,6 +68,35 @@ app.get('/programs', async (req, res) => {
     }
 });
 
+app.get('/update', async (req, res) => {
+    try {
+
+        let now = new Date();
+        if (diff_hours(now, updateDate) > 1) {
+            deleteAllChannels();
+            deleteAllPrograms();
+        
+            getAllData()
+                .then((data) => {
+                    const result = createChannelsAndPrograms(JSON.parse(data));
+                    addChannelsToDatabase(result.channels);
+                    insertPrograms(result.programs).then( () => {
+                      updateStorage();
+                      updateDate = new Date();
+                      res.json({success: true, time: updateDate});
+                    })
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+        res.json({success: false, time: now, lastUpdate: updateDate});
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
 
 cron.schedule('0 4 * * *', () => {
     console.log('CRON TRIGGERED')
@@ -85,6 +113,15 @@ cron.schedule('0 4 * * *', () => {
             console.error(error);
         });
 });
+
+function diff_hours(dt2, dt1) 
+ {
+
+  var diff =(dt2.getTime() - dt1.getTime()) / 1000;
+  diff /= (60 * 60);
+  return Math.abs(Math.round(diff));
+  
+ }
 
 function deleteAllChannels() {
     const channelsCollection = mongoose.connection.db.collection('channels');
@@ -106,6 +143,15 @@ function deleteAllPrograms() {
         .catch((error) => {
             console.error(error);
         });
+}
+
+async function updateStorage() {
+            // Récupérer les channels depuis la base de données ici
+            const channelsCollection = myDatabase.collection('channels');
+            channels = await channelsCollection.find({}).toArray();
+            // Récupérer les channels depuis la base de données ici
+            const programsCollection = myDatabase.collection('programs');
+            programs = await programsCollection.find({}).toArray();
 }
 
 
