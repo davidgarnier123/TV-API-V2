@@ -27,22 +27,22 @@ async function connect() {
         // const programsCollection = myDatabase.collection('programs');
         // programs = await programsCollection.find({}).toArray();
         
-        deleteAllChannels();
-        deleteAllPrograms();
+        // deleteAllChannels();
+        // deleteAllPrograms();
     
-        getAllData()
-            .then((data) => {
-                const result = createChannelsAndPrograms(JSON.parse(data));
-                addChannelsToDatabase(result.channels);
-                insertPrograms(result.programs).then( () => {
-                  updateStorage();
-                  updateDate = new Date();
-                 // res.json({success: true, time: updateDate});
-                })
-            })
-            .catch((error) => {
-                console.error(error);
-            });
+        // getAllData()
+        //     .then((data) => {
+        //         const result = createChannelsAndPrograms(JSON.parse(data));
+        //         addChannelsToDatabase(result.channels);
+        //         insertPrograms(result.programs).then( () => {
+        //           updateStorage();
+        //           updateDate = new Date();
+        //          // res.json({success: true, time: updateDate});
+        //         })
+        //     })
+        //     .catch((error) => {
+        //         console.error(error);
+        //     });
             
         updateStorage();
     } catch (error) {
